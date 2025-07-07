@@ -89,6 +89,36 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// Atualizar dados da empresa (nome, cnpj, endereco)
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nome, cnpj, endereco } = req.body;
+  const empresaTiId = req.user.empresa_ti_id;
+
+  if (!nome || !cnpj) {
+    return res.status(400).json({ error: "Nome e CNPJ são obrigatórios" });
+  }
+
+  try {
+    const result = await db.query(
+      `UPDATE empresas
+       SET nome = $1, cnpj = $2, endereco = $3
+       WHERE id = $4 AND empresa_ti_id = $5
+       RETURNING *`,
+      [nome, cnpj, endereco, id, empresaTiId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Empresa não encontrada" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Erro ao atualizar empresa:", err);
+    res.status(500).json({ error: "Erro ao atualizar empresa" });
+  }
+});
+
 // Atualizar ativo/inativo da empresa da empresa_ti do usuário logado
 router.patch("/:id", async (req, res) => {
   const { id } = req.params;

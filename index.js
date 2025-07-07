@@ -5,7 +5,14 @@ const app = express();
 const port = 8080;
 
 // Middleware global
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://seu-site-na-vercel.vercel.app"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 app.use(express.json());
 
 // Rotas
